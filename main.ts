@@ -12,7 +12,9 @@ const MAX_BYTES = 1_048_576;
 const MAX_SIDE = 1024;
 
 type Size = { width: number; height: number };
+type Checked = Size & { format: 'jpeg' | 'png' };
 
+// JPEG: SOI, then marker segments, one frame header (SOF), scans of entropy-coded data, and EOI as the final bytes.
 function jpegSize(buf: Buffer): Size {
   if (buf[0] !== 0xff || buf[1] !== 0xd8) throw new Error('missing JPEG SOI marker');
   let pos = 2;
@@ -26,9 +28,14 @@ function jpegSize(buf: Buffer): Size {
     const len = buf.readUInt16BE(pos + 2);
     if (len < 2 || pos + 2 + len > buf.length) throw new Error(`segment 0x${marker.toString(16)} overruns the file`);
     const isSof = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
-    if (isSof) size = { height: buf.readUInt16BE(pos + 5), width: buf.readUInt16BE(pos + 7) };
+    if (isSof) {
+      if (size) throw new Error('more than one JPEG frame header');
+      if (len < 8) throw new Error('JPEG frame header too short');
+      size = { height: buf.readUInt16BE(pos + 5), width: buf.readUInt16BE(pos + 7) };
+    }
     pos += 2 + len;
     if (marker === 0xda) {
+      if (!size) throw new Error('scan before the frame header');
       // Entropy-coded data runs until a marker that is neither a stuffed 0x00 nor a restart marker.
       while (pos + 1 < buf.length) {
         if (buf[pos] === 0xff) {
@@ -41,7 +48,6 @@ function jpegSize(buf: Buffer): Size {
       }
       if (buf[pos + 1] === 0xd9) {
         if (pos + 2 !== buf.length) throw new Error('bytes after the EOI marker');
-        if (!size) throw new Error('no SOF segment');
         return size;
       }
     }
@@ -61,6 +67,7 @@ function crc32(buf: Buffer, start: number, end: number): number {
   return (c ^ -1) >>> 0;
 }
 
+// PNG: signature, IHDR first (13 bytes), every chunk's CRC-32, at least one IDAT, and IEND as the final bytes.
 function pngSize(buf: Buffer): Size {
   const sig = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
   if (sig.some((b, i) => buf[i] !== b)) throw new Error('missing PNG signature');
@@ -74,10 +81,14 @@ function pngSize(buf: Buffer): Size {
     if (end > buf.length) throw new Error(`${type} chunk overruns the file`);
     if (crc32(buf, pos + 4, pos + 8 + len) !== buf.readUInt32BE(pos + 8 + len)) throw new Error(`${type} CRC mismatch`);
     if (pos === 8 && (type !== 'IHDR' || len !== 13)) throw new Error('IHDR must come first');
-    if (type === 'IHDR') size = { width: buf.readUInt32BE(pos + 8), height: buf.readUInt32BE(pos + 12) };
+    if (type === 'IHDR') {
+      if (size) throw new Error('more than one IHDR');
+      size = { width: buf.readUInt32BE(pos + 8), height: buf.readUInt32BE(pos + 12) };
+    }
     if (type === 'IDAT') idat = true;
     pos = end;
     if (type === 'IEND') {
+      if (len !== 0) throw new Error('IEND must be empty');
       if (pos !== buf.length) throw new Error('bytes after IEND');
       if (!size || !idat) throw new Error('missing IHDR or IDAT');
       return size;
@@ -86,16 +97,21 @@ function pngSize(buf: Buffer): Size {
   throw new Error('PNG ends without IEND');
 }
 
-const image = readFileSync(new URL('./entry.png', import.meta.url));
-if (image.length > MAX_BYTES) throw new Error(`entry.png is ${image.length} bytes, over ${MAX_BYTES}`);
 // The gate tells PNG from JPEG by the first bytes, so dispatch on the full signature and refuse anything else.
-const isJpeg = image.length > 3 && image[0] === 0xff && image[1] === 0xd8 && image[2] === 0xff;
-const isPng = image.length > 8 && image.readUInt32BE(0) === 0x89504e47;
-if (!isJpeg && !isPng) throw new Error('entry.png is neither a JPEG nor a PNG');
-const { width, height } = isJpeg ? jpegSize(image) : pngSize(image);
-if (width < 1 || height < 1 || width > MAX_SIDE || height > MAX_SIDE) {
-  throw new Error(`entry.png is ${width}x${height}, outside 1..${MAX_SIDE}`);
+function checkEntry(image: Buffer): Checked {
+  if (image.length > MAX_BYTES) throw new Error(`entry.png is ${image.length} bytes, over ${MAX_BYTES}`);
+  const isJpeg = image.length > 3 && image[0] === 0xff && image[1] === 0xd8 && image[2] === 0xff;
+  const isPng = image.length > 8 && image.readUInt32BE(0) === 0x89504e47;
+  if (!isJpeg && !isPng) throw new Error('entry.png is neither a JPEG nor a PNG');
+  const { width, height } = isJpeg ? jpegSize(image) : pngSize(image);
+  if (width < 1 || height < 1 || width > MAX_SIDE || height > MAX_SIDE) {
+    throw new Error(`entry.png is ${width}x${height}, outside 1..${MAX_SIDE}`);
+  }
+  return { format: isJpeg ? 'jpeg' : 'png', width, height };
 }
+
+const image = readFileSync(new URL('./entry.png', import.meta.url));
+const checked = checkEntry(image);
 
 // Both grader runs must produce identical bytes: write the validated buffer, then read it back to prove the copy.
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
@@ -103,3 +119,4 @@ mkdirSync(outDir, { recursive: true });
 const outPath = join(outDir, 'entry.png');
 writeFileSync(outPath, image);
 if (!readFileSync(outPath).equals(image)) throw new Error(`${outPath} does not match the committed entry.png`);
+console.log(`wrote ${outPath}: ${checked.format} ${checked.width}x${checked.height}, ${image.length} bytes`);
