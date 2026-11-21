@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The World on Friday 20 November 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1024px; height: 1024px; overflow: hidden; }
+  body {
+    background: #f4efe4;
+    color: #13213b;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  .mast {
+    background: #13213b; color: #f4efe4;
+    padding: 10px 22px 9px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .mast h1 { font-family: Georgia, "Times New Roman", serif; font-size: 40px; letter-spacing: 0.5px; line-height: 1; }
+  .mast h1 b { color: #ffcc4d; }
+  .mast .kicker { font-size: 14px; text-align: right; line-height: 1.25; text-transform: uppercase; letter-spacing: 1px; color: #c9d3e6; }
+  .mast .kicker b { color: #fff; font-size: 17px; }
+
+  .lead { display: flex; height: 330px; border-bottom: 3px solid #13213b; }
+  .lead .pic { width: 590px; height: 100%; background: url(assets/markets.jpg) center/cover; }
+  .lead .txt { flex: 1; padding: 16px 20px 12px; display: flex; flex-direction: column; justify-content: center; background: #fff; }
+  .tag { display: inline-block; font-size: 12px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #fff; background: #c8102e; padding: 3px 7px; margin-bottom: 8px; align-self: flex-start; }
+  .lead h2 { font-family: Georgia, serif; font-size: 39px; line-height: 1.04; margin-bottom: 12px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; margin-bottom: 10px; }
+  .stat { border-left: 4px solid #c8102e; padding-left: 8px; }
+  .stat b { display: block; font-size: 28px; color: #c8102e; line-height: 1; }
+  .stat span { font-size: 13px; font-weight: 600; }
+  .lead p { font-size: 14px; line-height: 1.3; }
+
+  .grid { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: 1fr 1fr; gap: 8px; padding: 8px 10px 6px; }
+  .card { background: #fff; display: flex; flex-direction: column; overflow: hidden; border-top: 4px solid var(--c); }
+  .card .img { height: 168px; background-position: center; background-size: cover; }
+  .card .cap { padding: 6px 9px 6px; }
+  .card .where { font-size: 11px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--c); }
+  .card h3 { font-family: Georgia, serif; font-size: 19px; line-height: 1.08; margin: 2px 0 3px; }
+  .card p { font-size: 12.5px; line-height: 1.25; color: #2b3650; }
+
+  .ticker { background: #13213b; color: #f4efe4; font-size: 13.5px; padding: 8px 14px; line-height: 1.3; }
+  .ticker b { color: #ffcc4d; text-transform: uppercase; letter-spacing: 1px; margin-right: 6px; }
+</style>
+</head>
+<body>
+  <header class="mast">
+    <h1>The World on <b>Friday 20 November 2026</b></h1>
+    <div class="kicker">One day's news<br><b>20 Nov 2026</b></div>
+  </header>
+
+  <section class="lead">
+    <div class="pic"></div>
+    <div class="txt">
+      <span class="tag">Markets · Friday 20 Nov</span>
+      <h2>AI sell-off routs Wall Street</h2>
+      <div class="stats">
+        <div class="stat"><b>−5.3%</b><span>Nasdaq: 2026 gains erased</span></div>
+        <div class="stat"><b>−14%</b><span>Nvidia, in one day</span></div>
+        <div class="stat"><b>−3.7%</b><span>S&amp;P 500 in correction</span></div>
+        <div class="stat"><b>−950</b><span>Dow points, also in correction</span></div>
+      </div>
+      <p>Anthropic gives up most of its debut gains as AI jitters spread.</p>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="card" style="--c:#c8102e">
+      <div class="img" style="background-image:url(assets/poland.jpg)"></div>
+      <div class="cap">
+        <div class="where">Europe · Poland / Ukraine</div>
+        <h3>Russian missiles and drone land in Poland</h3>
+        <p>Tusk: "intentional provocation" near allied drill. Overnight strikes kill 8 in Kyiv.</p>
+      </div>
+    </article>
+    <article class="card" style="--c:#1d4fa3">
+      <div class="img" style="background-image:url(assets/whitehouse.jpg)"></div>
+      <div class="cap">
+        <div class="where">USA · after Shenzhen summit</div>
+        <h3>Trump: China building nukes "hot and heavy"</h3>
+        <p>First press conference since Thursday's talks with Xi and Putin.</p>
+      </div>
+    </article>
+    <article class="card" style="--c:#2a63c9">
+      <div class="img" style="background-image:url(assets/uk-eu.jpg)"></div>
+      <div class="cap">
+        <div class="where">Europe · Brussels summit</div>
+        <h3>UK and EU agree Brexit "reset"</h3>
+        <p>Food-trade deal and youth visas for up to 100,000 a year each way.</p>
+      </div>
+    </article>
+    <article class="card" style="--c:#0f7a73">
+      <div class="img" style="background-image:url(assets/rohingya.jpg)"></div>
+      <div class="cap">
+        <div class="where">Asia · Myanmar / Malaysia</div>
+        <h3>Myanmar calls ICJ genocide ruling "unfair"</h3>
+        <p>Malaysia plans to resettle 10,000 Rohingya refugees in Türkiye.</p>
+      </div>
+    </article>
+    <article class="card" style="--c:#2f7d32">
+      <div class="img" style="background-image:url(assets/cop31.jpg)"></div>
+      <div class="cap">
+        <div class="where">Climate · Antalya, Türkiye</div>
+        <h3>COP31 talks run past deadline</h3>
+        <p>Draft deal drops fossil-fuel wording; no agreement on the final day.</p>
+      </div>
+    </article>
+    <article class="card" style="--c:#c2187a">
+      <div class="img" style="background-image:url(assets/gta.jpg)"></div>
+      <div class="cap">
+        <div class="where">Culture · Games</div>
+        <h3>GTA VI takes $3.79bn on day one</h3>
+        <p>Take-Two: biggest entertainment launch ever.</p>
+      </div>
+    </article>
+  </section>
+
+  <footer class="ticker">
+    <b>Also 20 Nov</b>Estonia to shut Russia road border from 1 Dec · Senegal: dozens missing as migrant boat capsizes · Iraqi forces enter Kataib Hezbollah stronghold · Italy general strike · UN food agency cuts 2027 aid goal to 91m people
+  </footer>
+</body>
+</html>
