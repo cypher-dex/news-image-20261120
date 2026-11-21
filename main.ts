@@ -5,7 +5,7 @@
 //
 //   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const MAX_BYTES = 1_048_576;
@@ -97,4 +97,9 @@ if (width < 1 || height < 1 || width > MAX_SIDE || height > MAX_SIDE) {
   throw new Error(`entry.png is ${width}x${height}, outside 1..${MAX_SIDE}`);
 }
 
-writeFileSync(join(process.env.MAKEFUN_OUTPUT_DIR ?? '/output', 'entry.png'), image);
+// Both grader runs must produce identical bytes: write the validated buffer, then read it back to prove the copy.
+const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
+mkdirSync(outDir, { recursive: true });
+const outPath = join(outDir, 'entry.png');
+writeFileSync(outPath, image);
+if (!readFileSync(outPath).equals(image)) throw new Error(`${outPath} does not match the committed entry.png`);
